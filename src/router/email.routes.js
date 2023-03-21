@@ -1,24 +1,10 @@
 import {Router} from 'express'
-import { blueshrimpdb } from '../config/database.js'
+import { emailController } from '../controllers/emailController.js'
+import { validateSchema } from '../middlewares/validateSchema.js'
+import { createEmailSchema } from '../schemas/createEmailSchema.js'
 
 const mailRoutes = Router()
 
-mailRoutes.post("/email", async (req, res) => {
-    const {email} = req.body
-    try {
-        const emailUser = await blueshrimpdb.collection('email').findOne({email})
-
-        if(emailUser){
-            return res.sendStatus(409)
-        }
-
-        await blueshrimpdb.collection("email").insertOne({email})
-        return res.sendStatus(201)
-    } catch (error) {
-        console.log(error)
-        return res.sendStatus(500)
-    }
-})
-
+mailRoutes.post("/email", validateSchema(createEmailSchema), emailController.createEmail)
 
 export {mailRoutes}
